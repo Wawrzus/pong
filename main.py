@@ -1,33 +1,15 @@
 import pygame
+from objects import Padle, Ball
 
 pygame.init()
 screen = pygame.display.set_mode((1280, 720))
 clock = pygame.time.Clock()
 running = True
 
-
-class Padle:
-    def __init__(self, position: list, color: str, points: int, velocity_y: int):
-        self.position = position
-        self.color = color
-        self.points = points
-        self.velocity_y = velocity_y
-
-
-class Ball:
-    def __init__(self, position: list, radius: float, color: str, velocity_x: float, velocity_y: float):
-        self.position = position
-        self.radius = radius
-        self.color = color
-        self.velocity_x= velocity_x
-        self.velocity_y= velocity_y
-
-
 left_player = Padle([0, 295, 10, 150], 'red', 0, 6)
 right_player = Padle([1270, 295, 10, 150], 'blue', 0, 6)
 ball = Ball([640, 360], 14, 'orange', 4, 4)
 font = pygame.font.SysFont('liberationsans', 30, True)
-
 
 while running:
     for event in pygame.event.get():
