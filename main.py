@@ -2,6 +2,19 @@ import pygame
 from objects import Padle, Ball
 
 pygame.init()
+
+SCREEN_WIDTH = 1280
+SCREEN_HEIGHT = 720
+
+PADLE_WIDTH = 10 
+PADDLE_HEIGHT = 150
+PADLE_VELOCITY_Y = 6
+
+BALL_RADIUS = 14
+BALL_SPEED_X = 4
+BALL_SPEED_Y = 4
+
+start_points = 0
 screen = pygame.display.set_mode((1280, 720))
 clock = pygame.time.Clock()
 running = True
@@ -14,14 +27,19 @@ BLUE = (0, 0, 255)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
-left_player = Padle([0, 295, 10, 150], RED, 0, 6)
-right_player = Padle([1270, 295, 10, 150], BLUE, 0, 6)
+left_player = Padle([0, 295, PADLE_WIDTH, PADDLE_HEIGHT], RED, start_points, PADLE_VELOCITY_Y)
+right_player = Padle([1270, 295, PADLE_WIDTH, PADDLE_HEIGHT], BLUE, start_points, PADLE_VELOCITY_Y)
 ball = Ball([640, 360], 14, ORANGE, 4, 4)
 font = pygame.font.SysFont('liberationsans', 30, True)
 START_GAME_BUTTON = pygame.Rect(490, 200, 300, 100)
 EXIT_GAME_BUTTON = pygame.Rect(490, 400, 300, 100)
 
-def menu():
+def _ball_reset():
+        ball.position[0] = SCREEN_WIDTH // 2
+        ball.position[1] = SCREEN_HEIGHT // 2
+        ball.velocity_x = 4
+
+def render_menu():
     screen.fill(BLACK)
     pygame.draw.rect(surface=screen, color=BLUE, rect=START_GAME_BUTTON, border_radius=5)
     pygame.draw.rect(surface=screen, color=BLUE, rect=EXIT_GAME_BUTTON, border_radius=5)
@@ -31,7 +49,7 @@ def menu():
     screen.blit(EXIT_TEXT, (610, 430))
     
 
-def game():
+def render_game():
     screen.fill(BLACK)  
 
     # rysowanie elementów planszy
@@ -49,15 +67,11 @@ def game():
 
     if ball.position[0] < -80:
         right_player.points += 1
-        ball.position[0] = 640
-        ball.position[1] = 360
-        ball.velocity_x = 4
+        _ball_reset()
 
     if ball.position[0] > 1300:
         left_player.points += 1 
-        ball.position[0] = 640
-        ball.position[1] = 360
-        ball.velocity_x = 4
+        _ball_reset()
 
     # hitboxy graczy
     if (ball.position[0] > 1270) and right_player.position[1] < ball.position[1] < right_player.position[1] + 150:
@@ -89,21 +103,20 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if START_GAME_BUTTON.collidepoint(event.pos):
+                menu_running = False
+            if EXIT_GAME_BUTTON.collidepoint(event.pos):
+                running = False
+
     # miejsce na logike gry
-    mouse_position = pygame.mouse.get_pos()
-    if (pygame.Rect.collidepoint(START_GAME_BUTTON, mouse_position) and event.type == pygame.MOUSEBUTTONDOWN):
-        menu_running = False
-
-    if (pygame.Rect.collidepoint(EXIT_GAME_BUTTON, mouse_position) and event.type == pygame.MOUSEBUTTONDOWN):
-        running = False
-
     if not menu_running and left_player.points < 3 and right_player.points < 3:
-        game()
+        render_game()
     else:
         left_player.points = 0
         right_player.points = 0
         menu_running = True
-        menu()
+        render_menu()
 
     # koniec miejsca na logike gry
 
