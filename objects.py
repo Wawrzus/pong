@@ -1,15 +1,17 @@
+from dataclasses import dataclass
+
+@dataclass
 class Padle:
-    def __init__(self, position: list, color: str, points: int, velocity_y: int):
-        self.position = position
-        self.color = color
-        self.points = points
-        self.velocity_y = velocity_y
+    position: list[int, int, int, int]
+    color: tuple[int, int, int]
+    points: int
+    velocity_y: float
 
 
+@dataclass
 class Ball:
-    def __init__(self, position: list, radius: float, color: str, velocity_x: float, velocity_y: float):
-        self.position = position
-        self.radius = radius
-        self.color = color
-        self.velocity_x= velocity_x
-        self.velocity_y= velocity_y
+    position: list[int, int]
+    radius: float
+    color: tuple[int, int, int]
+    velocity_x: float
+    velocity_y: float

@@ -6,34 +6,41 @@ screen = pygame.display.set_mode((1280, 720))
 clock = pygame.time.Clock()
 running = True
 menu_running = True
+game_end = False
 
-left_player = Padle([0, 295, 10, 150], 'red', 0, 6)
-right_player = Padle([1270, 295, 10, 150], 'blue', 0, 6)
-ball = Ball([640, 360], 14, 'orange', 4, 4)
+ORANGE = (255, 153, 51)
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+
+left_player = Padle([0, 295, 10, 150], RED, 0, 6)
+right_player = Padle([1270, 295, 10, 150], BLUE, 0, 6)
+ball = Ball([640, 360], 14, ORANGE, 4, 4)
 font = pygame.font.SysFont('liberationsans', 30, True)
 START_GAME_BUTTON = pygame.Rect(490, 200, 300, 100)
 EXIT_GAME_BUTTON = pygame.Rect(490, 400, 300, 100)
 
 def menu():
-    screen.fill('black')
-    pygame.draw.rect(surface=screen, color='blue', rect=START_GAME_BUTTON, border_radius=5)
-    pygame.draw.rect(surface=screen, color='blue', rect=EXIT_GAME_BUTTON, border_radius=5)
-    PLAY_TEXT = font.render('play', False, 'white')
-    EXIT_TEXT = font.render('exit', False, 'white')
+    screen.fill(BLACK)
+    pygame.draw.rect(surface=screen, color=BLUE, rect=START_GAME_BUTTON, border_radius=5)
+    pygame.draw.rect(surface=screen, color=BLUE, rect=EXIT_GAME_BUTTON, border_radius=5)
+    PLAY_TEXT = font.render('play', False, WHITE)
+    EXIT_TEXT = font.render('exit', False, WHITE)
     screen.blit(PLAY_TEXT, (610, 230))
     screen.blit(EXIT_TEXT, (610, 430))
     
 
 def game():
-    screen.fill('black')
+    screen.fill(BLACK)  
 
     # rysowanie elementów planszy
     pygame.draw.rect(screen, left_player.color, left_player.position)
     pygame.draw.rect(screen, right_player.color, right_player.position)
     pygame.draw.circle(screen, ball.color, ball.position, ball.radius)
 
-    left_player_points = font.render(f"{left_player.points}", True, 'white')
-    right_player_points = font.render(f"{right_player.points}", True, 'white')
+    left_player_points = font.render(f"{left_player.points}", True, WHITE)
+    right_player_points = font.render(f"{right_player.points}", True, WHITE)
     screen.blit(left_player_points, (50,50))
     screen.blit(right_player_points, (1230,50))
 
@@ -90,9 +97,12 @@ while running:
     if (pygame.Rect.collidepoint(EXIT_GAME_BUTTON, mouse_position) and event.type == pygame.MOUSEBUTTONDOWN):
         running = False
 
-    if not menu_running:
+    if not menu_running and left_player.points < 3 and right_player.points < 3:
         game()
     else:
+        left_player.points = 0
+        right_player.points = 0
+        menu_running = True
         menu()
 
     # koniec miejsca na logike gry
