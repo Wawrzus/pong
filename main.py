@@ -1,4 +1,5 @@
 import pygame
+from random import choice
 from objects import Padle, Ball
 
 pygame.init()
@@ -17,9 +18,14 @@ BALL_SPEED_Y = 4
 start_points = 0
 screen = pygame.display.set_mode((1280, 720))
 clock = pygame.time.Clock()
+game_state = "menu"
+
 running = True
 menu_running = True
 game_end = False
+win_menu_running = False
+
+start_time = None
 
 ORANGE = (255, 153, 51)
 RED = (255, 0, 0)
@@ -29,15 +35,14 @@ BLACK = (0, 0, 0)
 
 left_player = Padle([0, 295, PADLE_WIDTH, PADDLE_HEIGHT], RED, start_points, PADLE_VELOCITY_Y)
 right_player = Padle([1270, 295, PADLE_WIDTH, PADDLE_HEIGHT], BLUE, start_points, PADLE_VELOCITY_Y)
-ball = Ball([640, 360], 14, ORANGE, 4, 4)
+ball = Ball([640, 360], 14, ORANGE, 4 * choice([-1, 1]), 4 * choice([-1, 1]))
 font = pygame.font.SysFont('liberationsans', 30, True)
 START_GAME_BUTTON = pygame.Rect(490, 200, 300, 100)
 EXIT_GAME_BUTTON = pygame.Rect(490, 400, 300, 100)
 
-def _ball_reset():
-        ball.position[0] = SCREEN_WIDTH // 2
-        ball.position[1] = SCREEN_HEIGHT // 2
-        ball.velocity_x = 4
+def render_win():
+    screen.fill(RED)
+
 
 def render_menu():
     screen.fill(BLACK)
@@ -47,31 +52,31 @@ def render_menu():
     EXIT_TEXT = font.render('exit', False, WHITE)
     screen.blit(PLAY_TEXT, (610, 230))
     screen.blit(EXIT_TEXT, (610, 430))
-    
+
 
 def render_game():
     screen.fill(BLACK)  
 
     # rysowanie elementów planszy
-    pygame.draw.rect(screen, left_player.color, left_player.position)
-    pygame.draw.rect(screen, right_player.color, right_player.position)
-    pygame.draw.circle(screen, ball.color, ball.position, ball.radius)
+    left_player.draw(screen=screen)
+    right_player.draw(screen=screen)
+    ball.draw(screen=screen)
 
     left_player_points = font.render(f"{left_player.points}", True, WHITE)
     right_player_points = font.render(f"{right_player.points}", True, WHITE)
+
     screen.blit(left_player_points, (50,50))
     screen.blit(right_player_points, (1230,50))
 
-    ball.position[0] += ball.velocity_x
-    ball.position[1] += ball.velocity_y
+    ball.move()
 
     if ball.position[0] < -80:
-        right_player.points += 1
-        _ball_reset()
+        right_player.add_point()
+        ball.reset(screen_width=SCREEN_WIDTH, screen_height=SCREEN_HEIGHT)
 
     if ball.position[0] > 1300:
-        left_player.points += 1 
-        _ball_reset()
+        left_player.add_point()
+        ball.reset(screen_width=SCREEN_WIDTH, screen_height=SCREEN_HEIGHT)
 
     # hitboxy graczy
     if (ball.position[0] > 1270) and right_player.position[1] < ball.position[1] < right_player.position[1] + 150:
@@ -82,21 +87,21 @@ def render_game():
 
     # movement piłki w osi y
     if ball.position[1] > 720:
-        ball.velocity_y *= -1
+        ball.bounce_vertical()
     
     if ball.position[1] < 0:
-        ball.velocity_y *= -1
+        ball.bounce_vertical()
 
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_w] and left_player.position[1] >= 0:
-        left_player.position[1] -= left_player.velocity_y
-    if keys[pygame.K_s] and left_player.position[1] <= 570:
-        left_player.position[1] += left_player.velocity_y
+    if keys[pygame.K_w]:
+        left_player.move_up()
+    if keys[pygame.K_s]:
+        left_player.move_down()
 
-    if keys[pygame.K_UP] and right_player.position[1] >= 0:
-        right_player.position[1] -= right_player.velocity_y
-    if keys[pygame.K_DOWN] and right_player.position[1] <= 570:
-        right_player.position[1] += right_player.velocity_y
+    if keys[pygame.K_UP]:
+        right_player.move_up()
+    if keys[pygame.K_DOWN]:
+        right_player.move_down()
 
 while running:
     for event in pygame.event.get():
@@ -105,18 +110,29 @@ while running:
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             if START_GAME_BUTTON.collidepoint(event.pos):
-                menu_running = False
+                game_state = "game"
             if EXIT_GAME_BUTTON.collidepoint(event.pos):
                 running = False
 
-    # miejsce na logike gry
-    if not menu_running and left_player.points < 3 and right_player.points < 3:
-        render_game()
-    else:
+    if (left_player.points > 2 or right_player.points > 2) and game_state == "game":
+        game_state = "win"
+        start_time = pygame.time.get_ticks()
+
+    if game_state == "win" and pygame.time.get_ticks() - start_time > 3000:
         left_player.points = 0
         right_player.points = 0
-        menu_running = True
+        game_state = "menu"
+
+    # miejsce na logike gry
+
+    if game_state == "menu":
         render_menu()
+
+    if game_state == "game":
+        render_game()
+
+    if game_state == "win":
+        render_win()
 
     # koniec miejsca na logike gry
 
