@@ -27,6 +27,8 @@ win_menu_running = False
 
 start_time = None
 
+who_win = None
+
 ORANGE = (255, 153, 51)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
@@ -40,8 +42,11 @@ font = pygame.font.SysFont('liberationsans', 30, True)
 START_GAME_BUTTON = pygame.Rect(490, 200, 300, 100)
 EXIT_GAME_BUTTON = pygame.Rect(490, 400, 300, 100)
 
-def render_win():
-    screen.fill(RED)
+def render_win(player: Padle):
+    screen.fill(player.color)
+    win_text = font.render("gratulacje", False, WHITE)
+    win_text_rec = win_text.get_rect(center=((SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)))
+    screen.blit(win_text, win_text_rec)
 
 
 def render_menu():
@@ -115,10 +120,14 @@ while running:
                 running = False
 
     if (left_player.points > 2 or right_player.points > 2) and game_state == "game":
+        if left_player.points > right_player.points:
+            who_win = right_player
+        elif right_player.points > left_player.points:
+            who_win = left_player
         game_state = "win"
         start_time = pygame.time.get_ticks()
 
-    if game_state == "win" and pygame.time.get_ticks() - start_time > 3000:
+    if game_state == "win" and pygame.time.get_ticks() - start_time > 2000:
         left_player.points = 0
         right_player.points = 0
         game_state = "menu"
@@ -132,7 +141,7 @@ while running:
         render_game()
 
     if game_state == "win":
-        render_win()
+        render_win(who_win)
 
     # koniec miejsca na logike gry
 
