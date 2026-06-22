@@ -23,6 +23,14 @@ class Padle:
     def add_point(self):
         self.points += 1
 
+    def get_rect(self):
+        return pygame.Rect(
+            self.position[0], 
+            self.position[1], 
+            self.position[2], 
+            self.position[3]
+        )
+
 
 @dataclass
 class Ball:
@@ -46,3 +54,11 @@ class Ball:
 
     def bounce_vertical(self):
         self.velocity_y *= -1
+
+    def get_rect(self):
+        return pygame.Rect(
+            self.position[0]-self.radius, 
+            self.position[1]-self.radius,
+            self.radius * 2,
+            self.radius * 2
+        )

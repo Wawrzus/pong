@@ -84,10 +84,10 @@ def render_game():
         ball.reset(screen_width=SCREEN_WIDTH, screen_height=SCREEN_HEIGHT)
 
     # hitboxy graczy
-    if (ball.position[0] > 1270) and right_player.position[1] < ball.position[1] < right_player.position[1] + 150:
+    if right_player.get_rect().colliderect(ball.get_rect()):
         ball.velocity_x = ball.velocity_x * -1 - 2
 
-    if (ball.position[0] < 10) and left_player.position[1] < ball.position[1] < left_player.position[1] + 150:
+    if left_player.get_rect().colliderect(ball.get_rect()):
         ball.velocity_x = ball.velocity_x * -1 + 2
 
     # movement piłki w osi y
